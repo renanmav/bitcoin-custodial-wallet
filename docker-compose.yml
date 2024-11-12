@@ -1,0 +1,50 @@
+services:
+  server:
+    build: .
+    container_name: server
+    restart: always
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./packages/server/:/usr/src/app/packages/server/
+    depends_on:
+      - mongo
+      - bitcoind
+    networks:
+      - app-network
+
+  mongo:
+    image: mongo:latest
+    container_name: mongo
+    restart: always
+    ports:
+      - "27017:27017"
+    networks:
+      - app-network
+
+  bitcoind:
+    image: ruimarinho/bitcoin-core:latest
+    container_name: bitcoind
+    restart: always
+    command:
+      -printtoconsole
+      -regtest=1
+      -rest
+      -rpcallowip=0.0.0.0/0
+      -rpcbind=0.0.0.0
+      -rpcuser=foo
+      -rpcpassword=bar
+      -rpcport=18443
+      -server
+      -fallbackfee=0.0002
+    ports:
+      - "18443:18443"
+    networks:
+      - app-network
+    volumes:
+      - ./bitcoin-init.sh:/home/bitcoin/bitcoin-init.sh
+    entrypoint: ["/bin/sh", "-c", "/home/bitcoin/bitcoin-init.sh & bitcoind -printtoconsole -regtest=1 -rest -rpcallowip=0.0.0.0/0 -rpcbind=0.0.0.0 -rpcuser=foo -rpcpassword=bar -rpcport=18443 -server -fallbackfee=0.0002"]
+
+networks:
+  app-network:
+    driver: bridge
