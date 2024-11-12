@@ -1,16 +1,6 @@
 name: Lint
 
-on:
-  push:
-    branches:
-      - master
-    paths:
-      - ".github/workflows/lint.yml"
-      - "packages/**"
-  pull_request:
-    paths:
-      - ".github/workflows/lint.yml"
-      - "packages/**"
+on: push
 
 jobs:
   lint:
